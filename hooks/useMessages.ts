@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { Message } from "@/lib/supabase/types";
 
 export function useMessages(contactId: string | null) {
@@ -15,21 +14,17 @@ export function useMessages(contactId: string | null) {
       return;
     }
 
-    const supabase = createClient();
     setLoading(true);
     setError(null);
 
-    supabase
-      .from("messages")
-      .select("*")
-      .eq("contact_id", contactId)
-      .order("created_at", { ascending: true })
-      .then(({ data, error: err }) => {
-        if (err) {
-          setError(err.message);
-        } else {
-          setMessages((data as Message[]) ?? []);
-        }
+    fetch(`/api/messages/${contactId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setMessages(data ?? []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
         setLoading(false);
       });
   }, [contactId]);

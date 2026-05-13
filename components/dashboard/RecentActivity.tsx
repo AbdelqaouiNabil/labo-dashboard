@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { createClient } from "@/lib/supabase/client";
 import { MessageWithContact } from "@/lib/supabase/types";
 import { formatRelativeTime, getInitials, hashColor, truncateMessage } from "@/lib/utils";
 import { cn } from "@/lib/utils";
@@ -15,29 +14,17 @@ export function RecentActivity() {
   const router = useRouter();
 
   const fetchMessages = useCallback(async () => {
-    const supabase = createClient();
-    const { data } = await supabase
-      .from("messages")
-      .select("*, contacts(*)")
-      .eq("direction", "inbound")
-      .order("created_at", { ascending: false })
-      .limit(10);
-    setMessages((data as MessageWithContact[]) ?? []);
+    const res = await fetch("/api/activity");
+    if (!res.ok) return;
+    const data = await res.json();
+    setMessages(data ?? []);
     setLoading(false);
   }, []);
 
   useEffect(() => {
     fetchMessages();
-
-    const supabase = createClient();
-    const channel = supabase
-      .channel("recent-activity")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, () => {
-        fetchMessages();
-      })
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
+    const interval = setInterval(fetchMessages, 5000);
+    return () => clearInterval(interval);
   }, [fetchMessages]);
 
   if (loading) {
@@ -62,14 +49,14 @@ export function RecentActivity() {
 
   return (
     <div className="space-y-1">
-      {messages.map((msg, i) => {
+      {messages.map((msg) => {
         const name = msg.contacts?.name ?? "Inconnu";
         const isVeryRecent = new Date().getTime() - new Date(msg.created_at).getTime() < 60_000;
         return (
           <button
             key={msg.id}
             onClick={() => router.push("/conversations")}
-            className="w-full flex items-center gap-3 rounded-lg px-2 py-2.5 hover:bg-slate-50 transition-colors text-left"
+            className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-[#F8FAFC] transition-colors text-left"
           >
             <div className="relative">
               <Avatar className={cn("h-9 w-9", hashColor(name))}>
@@ -78,7 +65,7 @@ export function RecentActivity() {
                 </AvatarFallback>
               </Avatar>
               {isVeryRecent && (
-                <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-400 border-2 border-white animate-pulse" />
+                <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[#8B1F1F] border-2 border-white animate-pulse" />
               )}
             </div>
             <div className="flex-1 min-w-0">

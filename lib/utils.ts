@@ -43,7 +43,7 @@ export function truncateMessage(message: string, maxLength = 60): string {
 
 export function getModeColor(mode: "ai" | "human"): string {
   return mode === "ai"
-    ? "bg-green-100 text-green-700"
+    ? "bg-red-100 text-[#8B1F1F]"
     : "bg-orange-100 text-orange-700";
 }
 
@@ -67,13 +67,13 @@ export function getDirectionLabel(direction: "inbound" | "outbound"): string {
 export function hashColor(name: string): string {
   const colors = [
     "bg-blue-500",
-    "bg-green-500",
+    "bg-[#8B1F1F]",
     "bg-purple-500",
     "bg-pink-500",
     "bg-indigo-500",
-    "bg-teal-500",
+    "bg-slate-500",
     "bg-orange-500",
-    "bg-red-500",
+    "bg-rose-600",
   ];
   let hash = 0;
   for (let i = 0; i < name.length; i++) {

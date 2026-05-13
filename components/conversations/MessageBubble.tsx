@@ -51,7 +51,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             "max-w-[70%] rounded-2xl shadow-sm overflow-hidden",
             isImage && hasMedia ? "p-1" : "px-4 py-2.5",
             isOutbound
-              ? "bg-[#00B85F] text-white rounded-tr-sm"
+              ? "bg-[#8B1F1F] text-white rounded-tr-sm"
               : "bg-white text-slate-800 border border-slate-100 rounded-tl-sm"
           )}
         >
@@ -78,7 +78,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
               ) : (
                 <div className={cn(
                   "flex items-center justify-center gap-2 min-h-[80px] rounded-xl px-4",
-                  isOutbound ? "bg-green-700/30 text-green-100" : "bg-slate-100 text-slate-400"
+                  isOutbound ? "bg-red-900/30 text-red-100" : "bg-slate-100 text-slate-400"
                 )}>
                   <ImageIcon className="h-5 w-5" />
                   <span className="text-xs italic">Média indisponible</span>
@@ -89,7 +89,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                   {textContent}
                 </p>
               )}
-              <p className={cn("text-right text-[10px] px-2 pb-1.5 leading-none", isOutbound ? "text-green-100" : "text-slate-400")}>
+              <p className={cn("text-right text-[10px] px-2 pb-1.5 leading-none", isOutbound ? "text-red-100" : "text-slate-400")}>
                 {formatRelativeTime(message.created_at)}
               </p>
             </div>
@@ -97,7 +97,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
           {/* Image placeholder (no URL) */}
           {isImage && !hasMedia && (
-            <div className={cn("flex items-center gap-2 text-sm", isOutbound ? "text-green-100" : "text-slate-400")}>
+            <div className={cn("flex items-center gap-2 text-sm", isOutbound ? "text-red-100" : "text-slate-400")}>
               <ImageIcon className="h-4 w-4" />
               <span className="italic">[Image]</span>
             </div>
@@ -114,12 +114,12 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                   onError={() => setAudioError(true)}
                 />
               ) : (
-                <div className={cn("flex items-center gap-2 text-sm", isOutbound ? "text-green-100" : "text-slate-400")}>
+                <div className={cn("flex items-center gap-2 text-sm", isOutbound ? "text-red-100" : "text-slate-400")}>
                   <Mic className="h-4 w-4" />
                   <span className="italic">{audioError ? "Audio indisponible" : "[Message vocal]"}</span>
                 </div>
               )}
-              <p className={cn("text-right text-[10px] leading-none", isOutbound ? "text-green-100" : "text-slate-400")}>
+              <p className={cn("text-right text-[10px] leading-none", isOutbound ? "text-red-100" : "text-slate-400")}>
                 {formatRelativeTime(message.created_at)}
               </p>
             </div>
@@ -131,7 +131,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
               {textContent && (
                 <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{textContent}</p>
               )}
-              <p className={cn("text-right text-[10px] mt-1 leading-none", isOutbound ? "text-green-100" : "text-slate-400")}>
+              <p className={cn("text-right text-[10px] mt-1 leading-none", isOutbound ? "text-red-100" : "text-slate-400")}>
                 {formatRelativeTime(message.created_at)}
               </p>
             </>

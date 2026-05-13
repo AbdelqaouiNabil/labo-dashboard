@@ -1,13 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { ConversationWithContact } from "@/lib/supabase/types";
 
-export function useConversations(
-  mode: "ai" | "human" | "all" = "all",
-  search = ""
-) {
+export function useConversations(mode: "ai" | "human" | "all" = "all", search = "") {
   const [conversations, setConversations] = useState<ConversationWithContact[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,24 +12,12 @@ export function useConversations(
     setLoading(true);
     setError(null);
     try {
-      const supabase = createClient();
-      let query = supabase
-        .from("conversations")
-        .select("*, contacts(*)")
-        .order("last_message_at", { ascending: false, nullsFirst: false });
+      const res = await fetch("/api/conversations");
+      if (!res.ok) throw new Error("Erreur réseau");
+      const data: ConversationWithContact[] = await res.json();
 
-      if (mode !== "all") {
-        query = query.eq("mode", mode);
-      }
-
-      const { data, error: err } = await query;
-      if (err) throw err;
-
-      let results = (data as ConversationWithContact[]) ?? [];
-
-      // hide contacts without a name
-      results = results.filter((c) => c.contacts?.name?.trim());
-
+      let results = data.filter((c) => c.contacts?.name?.trim());
+      if (mode !== "all") results = results.filter((c) => c.mode === mode);
       if (search.trim()) {
         const q = search.toLowerCase();
         results = results.filter(
@@ -42,7 +26,6 @@ export function useConversations(
             c.contacts?.phone?.toLowerCase().includes(q)
         );
       }
-
       setConversations(results);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur inconnue");
@@ -53,6 +36,8 @@ export function useConversations(
 
   useEffect(() => {
     fetchConversations();
+    const interval = setInterval(fetchConversations, 5000);
+    return () => clearInterval(interval);
   }, [fetchConversations]);
 
   return { conversations, loading, error, refetch: fetchConversations };

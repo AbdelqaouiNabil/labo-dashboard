@@ -10,21 +10,17 @@ interface DataPoint {
   outbound: number;
 }
 
-interface MessagesChartProps {
-  data: DataPoint[];
-}
-
-export function MessagesChart({ data }: MessagesChartProps) {
+export function MessagesChart({ data }: { data: DataPoint[] }) {
   return (
     <ResponsiveContainer width="100%" height={280}>
       <AreaChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
         <defs>
           <linearGradient id="inboundGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#00B85F" stopOpacity={0.3} />
-            <stop offset="95%" stopColor="#00B85F" stopOpacity={0} />
+            <stop offset="5%" stopColor="#8B1F1F" stopOpacity={0.25} />
+            <stop offset="95%" stopColor="#8B1F1F" stopOpacity={0} />
           </linearGradient>
           <linearGradient id="outboundGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
+            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.25} />
             <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
           </linearGradient>
         </defs>
@@ -39,7 +35,7 @@ export function MessagesChart({ data }: MessagesChartProps) {
           formatter={(value) => (value === "inbound" ? "Reçus" : "Envoyés")}
           wrapperStyle={{ fontSize: "12px" }}
         />
-        <Area type="monotone" dataKey="inbound" stroke="#00B85F" strokeWidth={2} fill="url(#inboundGrad)" />
+        <Area type="monotone" dataKey="inbound" stroke="#8B1F1F" strokeWidth={2} fill="url(#inboundGrad)" />
         <Area type="monotone" dataKey="outbound" stroke="#3B82F6" strokeWidth={2} fill="url(#outboundGrad)" />
       </AreaChart>
     </ResponsiveContainer>

@@ -42,6 +42,18 @@ export type Appointment = {
   created_at: string;
 };
 
+export type Analysis = {
+  id: string;
+  code: string;
+  nom: string;
+  categorie: string | null;
+  sous_categorie: string | null;
+  coefficient_b: number;
+  prix: number | null;
+  synonymes: string[];
+  created_at: string;
+};
+
 export type Document = {
   id: string;
   contact_id: string;

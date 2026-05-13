@@ -1,63 +1,67 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import Image from "next/image";
 import {
-  LayoutDashboard,
-  MessageSquare,
-  Calendar,
-  BarChart3,
-  LogOut,
+  LayoutDashboard, MessageSquare, Calendar, BarChart3,
+  FlaskConical, LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/conversations", label: "Conversations", icon: MessageSquare },
   { href: "/appointments", label: "Rendez-vous", icon: Calendar },
+  { href: "/analyses", label: "Analyses", icon: FlaskConical },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
 
   const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/login");
+    await fetch("/api/auth/logout", { method: "POST" });
+    window.location.href = "/login";
   };
 
   return (
-    <aside className="flex h-screen w-64 flex-col bg-slate-900 text-white">
+    <aside className="flex h-screen w-[210px] flex-col bg-[#0F172A] py-5 flex-shrink-0 z-20">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-6 border-b border-slate-700">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#00B85F] font-bold text-white text-sm flex-shrink-0">
-          LMA
+      <div className="flex items-center gap-3 px-4 mb-8">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/10 flex-shrink-0 overflow-hidden">
+          <Image
+            src="/logo.png"
+            alt="Maghreb Lab"
+            width={36}
+            height={36}
+            className="object-contain"
+            onError={() => {}}
+          />
         </div>
         <div>
-          <p className="font-semibold text-sm leading-tight">Labo Maghreb Arabi</p>
-          <p className="text-xs text-slate-400">Dashboard</p>
+          <p className="text-white text-sm font-bold leading-tight tracking-wide">MAGHREB</p>
+          <p className="text-[#8B1F1F] text-xs font-semibold tracking-widest">LAB</p>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="flex flex-col gap-1 flex-1 px-3">
         {navItems.map(({ href, label, icon: Icon }) => {
-          const isActive = pathname === href || (href !== "/" && pathname.startsWith(href));
+          const isActive =
+            pathname === href || (href !== "/" && pathname.startsWith(href));
           return (
             <Link
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                "flex items-center gap-3 h-10 px-3 rounded-xl transition-all duration-150 text-sm font-medium",
                 isActive
-                  ? "bg-slate-700 text-white border-l-2 border-[#00B85F] pl-[10px]"
-                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                  ? "bg-[#8B1F1F] text-white shadow-md shadow-red-900/40"
+                  : "text-slate-400 hover:bg-slate-800 hover:text-slate-100"
               )}
             >
-              <Icon className="h-4 w-4 flex-shrink-0" />
+              <Icon className="h-[18px] w-[18px] flex-shrink-0" />
               {label}
             </Link>
           );
@@ -65,16 +69,13 @@ export function Sidebar() {
       </nav>
 
       {/* Bottom */}
-      <div className="border-t border-slate-700 px-4 py-4 space-y-3">
-        <div className="flex items-center gap-2 text-sm text-slate-300">
-          <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-          <span>Lina en ligne</span>
-        </div>
+      <div className="px-3">
+        <div className="w-full h-px bg-slate-800 mb-3" />
         <button
           onClick={handleLogout}
-          className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+          className="flex items-center gap-3 h-10 w-full px-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-all duration-150"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-[18px] w-[18px] flex-shrink-0" />
           Déconnexion
         </button>
       </div>

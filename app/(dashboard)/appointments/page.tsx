@@ -1,20 +1,15 @@
-import { createClient } from "@/lib/supabase/server";
+import pool from "@/lib/db";
 import { AppointmentTable } from "@/components/appointments/AppointmentTable";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { Clock, CheckCircle, XCircle } from "lucide-react";
 
 export default async function AppointmentsPage() {
-  const supabase = await createClient();
   const today = new Date().toISOString().split("T")[0];
 
-  const [
-    { count: pending },
-    { count: confirmed },
-    { count: cancelled },
-  ] = await Promise.all([
-    supabase.from("appointments").select("*", { count: "exact", head: true }).eq("status", "pending").gte("created_at", today),
-    supabase.from("appointments").select("*", { count: "exact", head: true }).eq("status", "confirmed").gte("created_at", today),
-    supabase.from("appointments").select("*", { count: "exact", head: true }).eq("status", "cancelled").gte("created_at", today),
+  const [pending, confirmed, cancelled] = await Promise.all([
+    pool.query("SELECT COUNT(*) FROM appointments WHERE status = 'pending' AND created_at::date >= $1", [today]),
+    pool.query("SELECT COUNT(*) FROM appointments WHERE status = 'confirmed' AND created_at::date >= $1", [today]),
+    pool.query("SELECT COUNT(*) FROM appointments WHERE status = 'cancelled' AND created_at::date >= $1", [today]),
   ]);
 
   return (
@@ -22,9 +17,9 @@ export default async function AppointmentsPage() {
       <h1 className="text-2xl font-bold text-slate-900">Rendez-vous</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatsCard title="En attente (aujourd'hui)" value={pending ?? 0} icon={Clock} color="orange" />
-        <StatsCard title="Confirmés (aujourd'hui)" value={confirmed ?? 0} icon={CheckCircle} color="green" />
-        <StatsCard title="Annulés (aujourd'hui)" value={cancelled ?? 0} icon={XCircle} color="red" />
+        <StatsCard title="En attente (aujourd'hui)" value={Number(pending.rows[0].count)} icon={Clock} color="orange" />
+        <StatsCard title="Confirmés (aujourd'hui)" value={Number(confirmed.rows[0].count)} icon={CheckCircle} color="green" />
+        <StatsCard title="Annulés (aujourd'hui)" value={Number(cancelled.rows[0].count)} icon={XCircle} color="red" />
       </div>
 
       <AppointmentTable />

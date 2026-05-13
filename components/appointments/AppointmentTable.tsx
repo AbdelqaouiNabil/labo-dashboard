@@ -16,7 +16,6 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { StatusBadge } from "./StatusBadge";
-import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { AppointmentWithContact } from "@/lib/supabase/types";
 import { formatPhone } from "@/lib/utils";
@@ -83,10 +82,11 @@ function EditDialog({
 
   const handleSave = async () => {
     setSaving(true);
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("appointments")
-      .update({
+    const res = await fetch("/api/appointments", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: apt.id,
         patient_name: form.patient_name || null,
         phone: form.phone ? Number(form.phone) : null,
         adresse: form.adresse || null,
@@ -98,11 +98,10 @@ function EditDialog({
         travel_fee: form.travel_fee ? Number(form.travel_fee) : null,
         final_price: form.final_price ? Number(form.final_price) : null,
         status: form.status,
-      })
-      .eq("id", apt.id);
-
+      }),
+    });
     setSaving(false);
-    if (error) {
+    if (!res.ok) {
       toast({ title: "Erreur", description: "Impossible de sauvegarder", variant: "destructive" });
     } else {
       toast({ title: "Rendez-vous mis à jour" });
@@ -219,10 +218,13 @@ function DeleteDialog({
 
   const handleDelete = async () => {
     setDeleting(true);
-    const supabase = createClient();
-    const { error } = await supabase.from("appointments").delete().eq("id", apt.id);
+    const res = await fetch("/api/appointments", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: apt.id }),
+    });
     setDeleting(false);
-    if (error) {
+    if (!res.ok) {
       toast({ title: "Erreur", description: "Impossible de supprimer", variant: "destructive" });
     } else {
       toast({ title: "Rendez-vous supprimé" });
@@ -264,17 +266,10 @@ export function AppointmentTable() {
 
   const fetchAppointments = useCallback(async () => {
     setLoading(true);
-    const supabase = createClient();
-    let query = supabase
-      .from("appointments")
-      .select("*, contacts(*)", { count: "exact" })
-      .order("created_at", { ascending: false })
-      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
-
-    if (statusFilter !== "all") query = query.eq("status", statusFilter);
-
-    const { data, count } = await query;
-    setAppointments((data as AppointmentWithContact[]) ?? []);
+    const params = new URLSearchParams({ page: String(page), status: statusFilter });
+    const res = await fetch(`/api/appointments?${params}`);
+    const { data, count } = await res.json();
+    setAppointments(data ?? []);
     setTotal(count ?? 0);
     setLoading(false);
   }, [statusFilter, page]);

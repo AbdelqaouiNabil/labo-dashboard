@@ -41,7 +41,7 @@ export function Header({ title, showSearch = false, onSearch }: HeaderProps) {
         )}
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[#00B85F]" />
+          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[#8B1F1F]" />
         </Button>
       </div>
     </header>
